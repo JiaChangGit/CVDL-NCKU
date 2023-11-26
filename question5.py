@@ -54,51 +54,37 @@ def augmentClick(self):
     overall = [i for i in os.listdir(self.loadAllFile) if re.search(".png", i)]
     self.files = overall
     print(self.files)
-    for i in range(9):
-        img = Image.open(self.loadAllFile + "/" + self.files[i])
+    data_augmentation1 = Sequential(
+        [
+            layers.RandomFlip(),
+            layers.RandomRotation(10),
+            layers.Rescaling(0.5),
+        ]
+    )
 
-        data_augmentation1 = Sequential(
-            [
-                layers.RandomFlip(),
-            ]
-        )
-        data_augmentation2 = Sequential(
-            [
-                layers.RandomRotation(10),
-            ]
-        )
-        data_augmentation3 = Sequential(
-            [
-                layers.Rescaling(0.5),
-            ]
-        )
-        fig = plt.figure()
-        plt.subplot(1, 4, 1)
-        plt.axis("off")
-        plt.imshow(img)
+    # Create a 3x3 subplot layout
+    fig, axes = plt.subplots(3, 3, figsize=(8, 8))
 
-        img = utils.img_to_array(img)
+    # Loop through each subplot position and image filename
+    for i in range(3):
+        for j in range(3):
+            # Open the image using the Image class
+            img_path = os.path.join(self.loadAllFile, self.files[i * 3 + j])
+            img = Image.open(img_path)
 
-        plt.subplot(1, 4, 2)
-        plt.axis("off")
-        flip = data_augmentation1(img)
-        flip = Image.fromarray(flip.numpy().astype(np.uint8))
-        plt.imshow(flip)
+            # Apply data augmentation
+            augmented_img = data_augmentation1(img)
+            augmented_img = Image.fromarray(augmented_img.numpy().astype("uint8"))
 
-        plt.subplot(1, 4, 3)
-        plt.axis("off")
-        rotate = data_augmentation2(img)
-        rotate = Image.fromarray(rotate.numpy().astype(np.uint8))
-        plt.imshow(rotate)
+            # Display the augmented images in the current subplot
+            axes[i, j].imshow(augmented_img)
+            axes[i, j].axis("off")
+            # Extract the file name without extension
+            file_name_without_extension = os.path.splitext(self.files[i * 3 + j])[0]
+            axes[i, j].set_title(file_name_without_extension)
 
-        plt.subplot(1, 4, 4)
-        plt.axis("off")
-        crop = data_augmentation3(img)
-        crop = Image.fromarray(crop.numpy().astype(np.uint8))
-        print(crop.size)
-        plt.imshow(crop)
-        plt.title(self.files[i])
-        plt.show()
+    plt.tight_layout()
+    plt.show()
 
 
 def structClick():
