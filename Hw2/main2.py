@@ -3,6 +3,7 @@ import sys
 from matplotlib import pyplot as plt
 from PIL import Image
 import numpy as np
+import warnings
 import cv2
 from torchsummary import summary
 import torch
@@ -67,6 +68,30 @@ class VGG19_BN(nn.Module):
         x = self.classifier(x)
         return x
 
+class ResNet50BinaryClassifier(nn.Module):
+    def __init__(self):
+        super(ResNet50BinaryClassifier, self).__init__()
+
+        # Suppress deprecation warnings
+        warnings.filterwarnings("ignore", category=UserWarning, module="torchvision.models._utils")
+
+        # Load the pre-trained ResNet50 model
+        resnet50_model = models.resnet50(pretrained=True)
+
+        # Remove the existing fully connected layer (usually the last layer in resnet50)
+        self.features = nn.Sequential(*list(resnet50_model.children())[:-1])
+
+        # Add a new fully connected layer with 1 output node and a Sigmoid activation function
+        self.fc = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(2048, 1),
+            nn.Sigmoid()
+        )
+
+    def forward(self, x):
+        x = self.features(x)
+        x = self.fc(x)
+        return x
 
 transform_without_erasing = transforms.Compose(
     [
@@ -76,13 +101,6 @@ transform_without_erasing = transforms.Compose(
         transforms.ToTensor(),
     ]
 )
-
-
-def loadModel_withoutE():
-    model_without_erasing = models.resnet50()
-    model_without_erasing.fc = nn.Linear(model_without_erasing.fc.in_features, 2)
-    model_without_erasing.load_state_dict(torch.load("model_without_erasing.pth"))
-    return model_without_erasing
 
 
 class MainWindow(QMainWindow):
@@ -261,10 +279,11 @@ class MainWindow(QMainWindow):
         plt.show()
 
     def modelClick(self):
-        model = loadModel_withoutE()
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        model = ResNet50BinaryClassifier().to(device)
         print("\nModel without Random Erasing:")
         print(model)
-        summary(model)
+        summary(model,(3, 224, 224))
 
     def comparisonClick(self):
         accuracy = cv2.imread("Comparison.png")
@@ -274,23 +293,28 @@ class MainWindow(QMainWindow):
         if self.images == "":
             self.loadClick()
         # Load and preprocess the image
-        model = loadModel_withoutE()
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         image = Image.open(self.images).convert("RGB")
         image = transform_without_erasing(image)
-        image = image.unsqueeze(0)  # Add batch dimension
+        image = image.unsqueeze(0).to(device)  # Add batch dimension
+        resnet50_model = ResNet50BinaryClassifier().to(device)
+        resnet50_model.load_state_dict(torch.load('./resnet50_noRE.pth'))
+        resnet50_model.eval()
 
         # Run inference
         with torch.no_grad():
-            output = F.softmax(model(image), dim=1)
+            output =resnet50_model(image)
             print(output)
-        print(output[0][0].item())
 
         # Determine the predicted class label
-        threshold = 0.24  # wrong with threshold = 0.5
-        if output[0][0].item() < threshold:
-            predicted_class = "Cat"
+        if output.item() > 0.5:
+            predicted_class = 1
         else:
+            predicted_class = 0
+        if predicted_class == 1:
             predicted_class = "Dog"
+        else:
+            predicted_class = "Cat"
 
         # Display the result
         self.label_3.setText(f"Predict: {predicted_class}")
