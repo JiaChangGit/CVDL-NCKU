@@ -165,7 +165,7 @@ def dimensionReductionClick(self):
     # Step 3: Use PCA for dimension reduction
     w, h = gray_img.shape
     min_dim = min(w, h)
-    mse_threshold = 3.0
+    mse_threshold = 0.1
     n = 1
 
     while True:
