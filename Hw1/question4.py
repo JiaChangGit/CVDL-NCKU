@@ -3,13 +3,13 @@ import numpy as np
 
 
 def createKeyPoint(self):
-    if self.loadQ4_filename1 is "":
+    if self.loadQ4_filename1 == "":
         print("no data load")
         return
     img1 = cv2.imread(self.loadQ4_filename1)
     img1_gray = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
 
-    SIFT = cv2.xfeatures2d.SIFT_create()
+    SIFT = cv2.SIFT_create()
     key1, des1 = SIFT.detectAndCompute(img1_gray, None)
 
     kp_image1 = cv2.drawKeypoints(img1_gray, key1, np.array([]), color=(0, 255, 0))
@@ -20,7 +20,7 @@ def createKeyPoint(self):
 
 
 def matchedKeyPoint(self):
-    if self.loadQ4_filename1 is "" or self.loadQ4_filename2 is "":
+    if self.loadQ4_filename1 == "" or self.loadQ4_filename2 == "":
         return
 
     img1 = cv2.imread(self.loadQ4_filename1)
@@ -28,7 +28,7 @@ def matchedKeyPoint(self):
     img1_gray = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
     img2_gray = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
 
-    SIFT = cv2.xfeatures2d.SIFT_create()
+    SIFT = cv2.SIFT_create()
     key1, des1 = SIFT.detectAndCompute(img1_gray, None)
     key2, des2 = SIFT.detectAndCompute(img2_gray, None)
 

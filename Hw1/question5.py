@@ -89,7 +89,7 @@ def augmentClick(self):
 
 def structClick():
     modelSTR = models.vgg19_bn()
-    summary(modelSTR)
+    summary(modelSTR,input_size=(3, 512, 128))
 
 
 def accClick(self):
