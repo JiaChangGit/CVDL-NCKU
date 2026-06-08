@@ -209,7 +209,7 @@ else:
 
 這裡的 0.5 是二元分類常見的 decision threshold。因為資料夾排序後 `Cat` 是類別 0，`Dog` 是類別 1，所以 sigmoid 越接近 1 越代表模型認為是 Dog。
 
-## Q1 Background Subtraction 深入探討
+## Q1 Background Subtraction 流程與實作
 
 ### 背景相減（Background Subtraction）
 
@@ -274,7 +274,7 @@ result = cv2.bitwise_and(frame, frame, mask=masks)
 
 這行的意義是：只有 mask 非 0 的位置保留原始 frame 的顏色，mask 為 0 的位置則變黑。舉例來說，如果某個像素原本是藍色車子，且 mask 判定該位置是前景，result 中就會保留該藍色；如果是背景道路，result 中就會被清為黑色。
 
-## Q2 Optical Flow 深入探討
+## Q2 Optical Flow 流程與實作
 
 ### 角點偵測（Corner Detection）
 
@@ -366,7 +366,7 @@ Optical Flow 可能失敗的原因包括：
 
 本專案只追蹤一個點，因此若該點失敗，整個追蹤就會中斷或不穩。更完整的系統通常會定期重新偵測角點，或同時追蹤多個點並過濾 outlier。
 
-## Q3 PCA Dimension Reduction 深入探討
+## Q3 PCA Dimension Reduction 流程與實作
 
 ### 主成分分析（Principal Component Analysis, PCA）
 
@@ -439,7 +439,7 @@ mse_threshold = 0.1
 
 因為誤差被乘回 255 尺度後再平方，`0.1` 是非常嚴格的門檻。若圖片細節很多，可能需要接近原始維度的主成分數才能達成。這也說明 PCA 對高頻紋理豐富的影像壓縮效率有限。
 
-## Q4 MNIST Classifier Using VGG19-BN 深入探討
+## Q4 MNIST Classifier Using VGG19-BN 流程與實作
 
 ### 卷積神經網路（Convolutional Neural Network, CNN）
 
@@ -569,7 +569,7 @@ prob = torch.softmax(output, dim=1)
 
 再將 `prob` 畫成長條圖。
 
-## Q5 ResNet50 Cat/Dog Classification 深入探討
+## Q5 ResNet50 Cat/Dog Classification 流程與實作
 
 ### 遷移學習（Transfer Learning）
 
